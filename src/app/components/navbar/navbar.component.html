@@ -1,0 +1,10 @@
+<div class="navbar px-[3rem] bg-base-100 shadow-sm">
+  <nav class="flex-1">
+    @if (islogin()) {
+    <a (click)="logout()"  class= "btn bg-red-600 hover:bg-red-700 text-white rounded-[.5rem] px-6 py-3 text-lg font-semibold
+              transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-red-500">logout</a>
+    } @if (!islogin()) {
+    <a  class="btn-ghost text-xl">login</a>
+    }
+  </nav>
+</div>

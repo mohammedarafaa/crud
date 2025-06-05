@@ -1,0 +1,14 @@
+/* You can add global styles to this file, and also import other style files */
+@import'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+@plugin "daisyui";
+ @plugin "daisyui" {
+   themes: dark --default, light--prefersdark;
+ }
+body {
+  font-family: 'Poppins', sans-serif;
+}
+* {
+  transition: background-color 0.3s ease;
+}

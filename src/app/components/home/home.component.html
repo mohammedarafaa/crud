@@ -1,0 +1,727 @@
+<section class="space-y-6 sm:space-y-8 lg:space-y-12 p-4 sm:p-6 lg:p-8">
+  <!-- Country Section -->
+  <div class="card bg-base-100 shadow-lg">
+    <div class="card-body p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+        <h2 class="card-title text-xl sm:text-2xl text-center sm:text-left">Countries Management</h2>
+        <button
+          (click)="countryModal.showModal()"
+          class="btn btn-primary gap-2 w-full sm:w-auto"
+          aria-label="Add new country"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span class="hidden xs:inline">Add Country</span>
+          <span class="xs:hidden">Add</span>
+        </button>
+      </div>
+
+      <!-- Country Modal -->
+      <dialog #countryModal class="modal">
+        <div class="modal-box w-11/12 max-w-md mx-4 sm:mx-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg sm:text-xl font-bold">Add New Country</h3>
+            <button
+              (click)="countryModal.close(); countryError = ''"
+              class="btn btn-ghost btn-circle btn-sm"
+              aria-label="Close modal"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form (ngSubmit)="addCountry()" [formGroup]="countriesform" class="space-y-4">
+            <div class="form-control">
+              <label class="label" for="countryName">
+                <span class="label-text text-sm sm:text-base">Country Name</span>
+              </label>
+              <input
+                id="countryName"
+                formControlName="name"
+                type="text"
+                placeholder="e.g. United States"
+                class="input input-bordered w-full text-sm sm:text-base"
+                [class.input-error]="isFieldInvalid(countriesform, 'name')"
+              />
+              @if (isFieldInvalid(countriesform, 'name')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    @if (countriesform.get('name')?.errors?.['required']) {
+                      Country name is required
+                    }
+                    @if (countriesform.get('name')?.errors?.['minlength']) {
+                      Minimum 2 characters required
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+
+            <div class="form-control">
+              <label class="label" for="countryCode">
+                <span class="label-text text-sm sm:text-base">Country Code</span>
+              </label>
+              <input
+                id="countryCode"
+                formControlName="code"
+                type="text"
+                placeholder="101"
+                class="input input-bordered w-full text-sm sm:text-base"
+                maxlength="3"
+                [class.input-error]="isFieldInvalid(countriesform, 'code')"
+              />
+              @if (isFieldInvalid(countriesform, 'code')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    @if (countriesform.get('code')?.errors?.['required']) {
+                      Country code is required
+                    }
+                    @if (countriesform.get('code')?.errors?.['pattern']) {
+                      Only numbers are allowed
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+
+            @if (countryError) {
+              <div class="alert alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ countryError }}</span>
+              </div>
+            }
+
+            <div class="modal-action flex-col sm:flex-row gap-2">
+              <button type="button" (click)="countryModal.close(); countryError = ''" class="btn btn-ghost w-full sm:w-auto order-2 sm:order-1">Cancel</button>
+              <button type="submit" class="btn btn-primary w-full sm:w-auto order-1 sm:order-2">Add Country</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-backdrop" (click)="countryModal.close(); countryError = ''"></div>
+      </dialog>
+
+      <!-- Edit Country Modal -->
+      <dialog #editCountryModal class="modal">
+        <div class="modal-box w-11/12 max-w-md mx-4 sm:mx-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg sm:text-xl font-bold">Edit Country</h3>
+            <button
+              (click)="editCountryModal.close(); editCountryError = ''"
+              class="btn btn-ghost btn-circle btn-sm"
+              aria-label="Close modal"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form (ngSubmit)="updateCountry()" [formGroup]="editCountryForm" class="space-y-4">
+            <div class="form-control">
+              <label class="label" for="editCountryName">
+                <span class="label-text text-sm sm:text-base">Country Name</span>
+              </label>
+              <input
+                id="editCountryName"
+                formControlName="name"
+                type="text"
+                placeholder="e.g. United States"
+                class="input input-bordered w-full text-sm sm:text-base"
+                [class.input-error]="isFieldInvalid(editCountryForm, 'name')"
+              />
+              @if (isFieldInvalid(editCountryForm, 'name')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    @if (editCountryForm.get('name')?.errors?.['required']) {
+                      Country name is required
+                    }
+                    @if (editCountryForm.get('name')?.errors?.['minlength']) {
+                      Minimum 2 characters required
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+
+            <div class="form-control">
+              <label class="label" for="editCountryCode">
+                <span class="label-text text-sm sm:text-base">Country Code</span>
+              </label>
+              <input
+                id="editCountryCode"
+                formControlName="code"
+                type="text"
+                placeholder="101"
+                class="input input-bordered w-full text-sm sm:text-base"
+                maxlength="3"
+                [class.input-error]="isFieldInvalid(editCountryForm, 'code')"
+              />
+              @if (isFieldInvalid(editCountryForm, 'code')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    @if (editCountryForm.get('code')?.errors?.['required']) {
+                      Country code is required
+                    }
+                    @if (editCountryForm.get('code')?.errors?.['pattern']) {
+                      Only numbers are allowed
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+
+            @if (editCountryError) {
+              <div class="alert alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ editCountryError }}</span>
+              </div>
+            }
+
+            <div class="modal-action flex-col sm:flex-row gap-2">
+              <button type="button" (click)="editCountryModal.close(); editCountryError = ''" class="btn btn-ghost w-full sm:w-auto order-2 sm:order-1">Cancel</button>
+              <button type="submit" class="btn btn-primary w-full sm:w-auto order-1 sm:order-2">Update Country</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-backdrop" (click)="editCountryModal.close(); editCountryError = ''"></div>
+      </dialog>
+
+      <!-- Countries Table -->
+      <div class="overflow-x-auto -mx-4 sm:mx-0">
+        <div class="min-w-full inline-block align-middle">
+          <table class="table w-full min-w-[480px]">
+            <thead>
+              <tr>
+                <th class="w-2/5 text-sm sm:text-base">Name</th>
+                <th class="w-2/5 text-sm sm:text-base">Code</th>
+                <th class="w-1/5 text-right text-sm sm:text-base">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (country of countries(); track $index; let i = $index) {
+              <tr class="hover">
+                <td class="text-sm sm:text-base break-words">{{ country.name }}</td>
+                <td class="text-sm sm:text-base">{{ country.code }}</td>
+                <td class="text-right">
+                  <div class="flex justify-end space-x-1 sm:space-x-2">
+                    <button (click)="openEditCountryModal(country, i)" class="btn btn-xs sm:btn-sm btn-warning">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span class="hidden sm:inline ml-1">Edit</span>
+                    </button>
+                    <button (click)="deleteCountry(i)" class="btn btn-xs sm:btn-sm btn-error">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      <span class="hidden sm:inline ml-1">Delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="3" class="text-center py-6 sm:py-8 text-gray-500 text-sm sm:text-base">
+                  <div class="flex flex-col items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a4 4 0 004-4V5z" />
+                    </svg>
+                    <span>No countries added yet</span>
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cities Section -->
+  <div class="card bg-base-100 shadow-lg">
+    <div class="card-body p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+        <h2 class="card-title text-xl sm:text-2xl text-center sm:text-left">Cities Management</h2>
+        <button
+          (click)="cityModal.showModal()"
+          class="btn btn-primary gap-2 w-full sm:w-auto"
+          [disabled]="countries().length === 0"
+          aria-label="Add new city"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span class="hidden xs:inline">Add City</span>
+          <span class="xs:hidden">Add</span>
+        </button>
+      </div>
+
+      <!-- City Modal -->
+      <dialog #cityModal class="modal">
+        <div class="modal-box w-11/12 max-w-md mx-4 sm:mx-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg sm:text-xl font-bold">Add New City</h3>
+            <button
+              (click)="cityModal.close(); cityError = ''"
+              class="btn btn-ghost btn-circle btn-sm"
+              aria-label="Close modal"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form (ngSubmit)="addCity()" [formGroup]="citiesform" class="space-y-4">
+            <div class="form-control">
+              <label class="label" for="cityName">
+                <span class="label-text text-sm sm:text-base">City Name</span>
+              </label>
+              <input
+                id="cityName"
+                formControlName="name"
+                type="text"
+                placeholder="e.g. New York"
+                class="input input-bordered w-full text-sm sm:text-base"
+                [class.input-error]="isFieldInvalid(citiesform, 'name')"
+              />
+              @if (isFieldInvalid(citiesform, 'name')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    @if (citiesform.get('name')?.errors?.['required']) {
+                      City name is required
+                    }
+                    @if (citiesform.get('name')?.errors?.['minlength']) {
+                      Minimum 2 characters required
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+
+            <div class="form-control">
+              <label class="label" for="cityCountry">
+                <span class="label-text text-sm sm:text-base">Country</span>
+              </label>
+              <select
+                id="cityCountry"
+                formControlName="country"
+                class="select select-bordered w-full text-sm sm:text-base"
+                [class.select-error]="isFieldInvalid(citiesform, 'country')"
+              >
+                <option disabled selected value="">Select Country</option>
+                @for (country of countries(); track $index) {
+                <option [value]="country.name">{{ country.name }}</option>
+                }
+              </select>
+              @if (isFieldInvalid(citiesform, 'country')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    Country is required
+                  </span>
+                </label>
+              }
+            </div>
+
+            @if (cityError) {
+              <div class="alert alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ cityError }}</span>
+              </div>
+            }
+
+            <div class="modal-action flex-col sm:flex-row gap-2">
+              <button type="button" (click)="cityModal.close(); cityError = ''" class="btn btn-ghost w-full sm:w-auto order-2 sm:order-1">Cancel</button>
+              <button type="submit" class="btn btn-primary w-full sm:w-auto order-1 sm:order-2">Add City</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-backdrop" (click)="cityModal.close(); cityError = ''"></div>
+      </dialog>
+
+      <!-- Edit City Modal -->
+      <dialog #editCityModal class="modal">
+        <div class="modal-box w-11/12 max-w-md mx-4 sm:mx-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg sm:text-xl font-bold">Edit City</h3>
+            <button
+              (click)="editCityModal.close(); editCityError = ''"
+              class="btn btn-ghost btn-circle btn-sm"
+              aria-label="Close modal"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form (ngSubmit)="updateCity()" [formGroup]="editCityForm" class="space-y-4">
+            <div class="form-control">
+              <label class="label" for="editCityName">
+                <span class="label-text text-sm sm:text-base">City Name</span>
+              </label>
+              <input
+                id="editCityName"
+                formControlName="name"
+                type="text"
+                placeholder="e.g. New York"
+                class="input input-bordered w-full text-sm sm:text-base"
+                [class.input-error]="isFieldInvalid(editCityForm, 'name')"
+              />
+              @if (isFieldInvalid(editCityForm, 'name')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    @if (editCityForm.get('name')?.errors?.['required']) {
+                      City name is required
+                    }
+                    @if (editCityForm.get('name')?.errors?.['minlength']) {
+                      Minimum 2 characters required
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+
+            <div class="form-control">
+              <label class="label" for="editCityCountry">
+                <span class="label-text text-sm sm:text-base">Country</span>
+              </label>
+              <select
+                id="editCityCountry"
+                formControlName="country"
+                class="select select-bordered w-full text-sm sm:text-base"
+                [class.select-error]="isFieldInvalid(editCityForm, 'country')"
+              >
+                <option disabled value="">Select Country</option>
+                @for (country of countries(); track $index) {
+                <option [value]="country.name">{{ country.name }}</option>
+                }
+              </select>
+              @if (isFieldInvalid(editCityForm, 'country')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    Country is required
+                  </span>
+                </label>
+              }
+            </div>
+
+            @if (editCityError) {
+              <div class="alert alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ editCityError }}</span>
+              </div>
+            }
+
+            <div class="modal-action flex-col sm:flex-row gap-2">
+              <button type="button" (click)="editCityModal.close(); editCityError = ''" class="btn btn-ghost w-full sm:w-auto order-2 sm:order-1">Cancel</button>
+              <button type="submit" class="btn btn-primary w-full sm:w-auto order-1 sm:order-2">Update City</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-backdrop" (click)="editCityModal.close(); editCityError = ''"></div>
+      </dialog>
+
+      <!-- Cities Table -->
+      <div class="overflow-x-auto -mx-4 sm:mx-0">
+        <div class="min-w-full inline-block align-middle">
+          <table class="table w-full min-w-[480px]">
+            <thead>
+              <tr>
+                <th class="w-2/5 text-sm sm:text-base">Name</th>
+                <th class="w-2/5 text-sm sm:text-base">Country</th>
+                <th class="w-1/5 text-right text-sm sm:text-base">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (city of cities(); track $index; let i = $index) {
+              <tr class="hover">
+                <td class="text-sm sm:text-base break-words">{{ city.name }}</td>
+                <td class="text-sm sm:text-base break-words">{{ city.country }}</td>
+                <td class="text-right">
+                  <div class="flex justify-end space-x-1 sm:space-x-2">
+                    <button (click)="openEditCityModal(city, i)" class="btn btn-xs sm:btn-sm btn-warning">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span class="hidden sm:inline ml-1">Edit</span>
+                    </button>
+                    <button (click)="deleteCity(i)" class="btn btn-xs sm:btn-sm btn-error">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      <span class="hidden sm:inline ml-1">Delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="3" class="text-center py-6 sm:py-8 text-gray-500 text-sm sm:text-base">
+                  <div class="flex flex-col items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span>No cities added yet</span>
+                    @if (countries().length === 0) {
+                      <span class="text-xs text-warning">(Add a country first)</span>
+                    }
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Districts Section -->
+  <div class="card bg-base-100 shadow-lg">
+    <div class="card-body p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+        <h2 class="card-title text-xl sm:text-2xl text-center sm:text-left">Districts Management</h2>
+        <button
+          (click)="districtModal.showModal()"
+          class="btn btn-primary gap-2 w-full sm:w-auto"
+          [disabled]="cities().length === 0"
+          aria-label="Add new district"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span class="hidden xs:inline">Add District</span>
+          <span class="xs:hidden">Add</span>
+        </button>
+      </div>
+
+      <!-- District Modal -->
+      <dialog #districtModal class="modal">
+        <div class="modal-box w-11/12 max-w-md mx-4 sm:mx-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg sm:text-xl font-bold">Add New District</h3>
+            <button
+              (click)="districtModal.close(); districtError = ''"
+              class="btn btn-ghost btn-circle btn-sm"
+              aria-label="Close modal"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <form (ngSubmit)="addDistrict()" [formGroup]="districtform" class="space-y-4">
+            <div class="form-control">
+              <label class="label" for="districtName">
+                <span class="label-text text-sm sm:text-base">District Name</span>
+              </label>
+              <input
+                id="districtName"
+                formControlName="name"
+                type="text"
+                placeholder="e.g. Manhattan"
+                class="input input-bordered w-full text-sm sm:text-base"
+                [class.input-error]="isFieldInvalid(districtform, 'name')"
+              />
+              @if (isFieldInvalid(districtform, 'name')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    @if (districtform.get('name')?.errors?.['required']) {
+                      District name is required
+                    }
+                    @if (districtform.get('name')?.errors?.['minlength']) {
+                      Minimum 2 characters required
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+            <div class="form-control">
+              <label class="label" for="districtCity">
+                <span class="label-text text-sm sm:text-base">City</span>
+              </label>
+              <select
+                id="districtCity"
+                formControlName="city"
+                class="select select-bordered w-full text-sm sm:text-base"
+                [class.select-error]="isFieldInvalid(districtform, 'city')"
+              >
+                <option disabled selected value="">Select City</option>
+                @for (city of cities(); track $index) {
+                <option [value]="city.name">{{ city.name }}</option>
+                }
+              </select>
+              @if (isFieldInvalid(districtform, 'city')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    City is required
+                  </span>
+                </label>
+              }
+            </div>
+            @if (districtError) {
+              <div class="alert alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ districtError }}</span>
+              </div>
+            }
+            <div class="modal-action flex-col sm:flex-row gap-2">
+              <button type="button" (click)="districtModal.close(); districtError = ''" class="btn btn-ghost w-full sm:w-auto order-2 sm:order-1">Cancel</button>
+              <button type="submit" class="btn btn-primary w-full sm:w-auto order-1 sm:order-2">Add District</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-backdrop" (click)="districtModal.close(); districtError = ''"></div>
+      </dialog>
+
+      <!-- Edit District Modal -->
+      <dialog #editDistrictModal class="modal">
+        <div class="modal-box w-11/12 max-w-md mx-4 sm:mx-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg sm:text-xl font-bold">Edit District</h3>
+            <button
+              (click)="editDistrictModal.close(); editDistrictError = ''"
+              class="btn btn-ghost btn-circle btn-sm"
+              aria-label="Close modal"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <form (ngSubmit)="updateDistrict()" [formGroup]="editDistrictForm" class="space-y-4">
+            <div class="form-control">
+              <label class="label" for="editDistrictName">
+                <span class="label-text text-sm sm:text-base">District Name</span>
+              </label>
+              <input
+                id="editDistrictName"
+                formControlName="name"
+                type="text"
+                placeholder="e.g. Manhattan"
+                class="input input-bordered w-full text-sm sm:text-base"
+                [class.input-error]="isFieldInvalid(editDistrictForm, 'name')"
+              />
+              @if (isFieldInvalid(editDistrictForm, 'name')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    @if (editDistrictForm.get('name')?.errors?.['required']) {
+                      District name is required
+                    }
+                    @if (editDistrictForm.get('name')?.errors?.['minlength']) {
+                      Minimum 2 characters required
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+            <div class="form-control">
+              <label class="label" for="editDistrictCity">
+                <span class="label-text text-sm sm:text-base">City</span>
+              </label>
+              <select
+                id="editDistrictCity"
+                formControlName="city"
+                class="select select-bordered w-full text-sm sm:text-base"
+                [class.select-error]="isFieldInvalid(editDistrictForm, 'city')"
+              >
+                <option disabled value="">Select City</option>
+                @for (city of cities(); track $index) {
+                <option [value]="city.name">{{ city.name }}</option>
+                }
+              </select>
+              @if (isFieldInvalid(editDistrictForm, 'city')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">
+                    City is required
+                  </span>
+                </label>
+              }
+            </div>
+            @if (editDistrictError) {
+              <div class="alert alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ editDistrictError }}</span>
+              </div>
+            }
+            <div class="modal-action flex-col sm:flex-row gap-2">
+              <button type="button" (click)="editDistrictModal.close(); editDistrictError = ''" class="btn btn-ghost w-full sm:w-auto order-2 sm:order-1">Cancel</button>
+              <button type="submit" class="btn btn-primary w-full sm:w-auto order-1 sm:order-2">Update District</button>
+            </div>
+          </form>
+        </div>
+        <div class="modal-backdrop" (click)="editDistrictModal.close(); editDistrictError = ''"></div>
+      </dialog>
+
+      <!-- Districts Table -->
+      <div class="overflow-x-auto -mx-4 sm:mx-0">
+        <div class="min-w-full inline-block align-middle">
+          <table class="table w-full min-w-[480px]">
+            <thead>
+              <tr>
+                <th class="w-2/5 text-sm sm:text-base">Name</th>
+                <th class="w-2/5 text-sm sm:text-base">City</th>
+                <th class="w-1/5 text-right text-sm sm:text-base">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (district of districts(); track $index; let i = $index) {
+              <tr class="hover">
+                <td class="text-sm sm:text-base break-words">{{ district.name }}</td>
+                <td class="text-sm sm:text-base break-words">{{ district.city }}</td>
+                <td class="text-right">
+                  <div class="flex justify-end space-x-1 sm:space-x-2">
+                    <button (click)="openEditDistrictModal(district, i)" class="btn btn-xs sm:btn-sm btn-warning">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span class="hidden sm:inline ml-1">Edit</span>
+                    </button>
+                    <button (click)="deleteDistric(i)" class="btn btn-xs sm:btn-sm btn-error">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      <span class="hidden sm:inline ml-1">Delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="3" class="text-center py-6 sm:py-8 text-gray-500 text-sm sm:text-base">
+                  <div class="flex flex-col items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <span>No districts added yet</span>
+                    @if (cities().length === 0) {
+                      <span class="text-xs text-warning">(Add a city first)</span>
+                    }
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
