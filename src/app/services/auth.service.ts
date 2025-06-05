@@ -11,6 +11,6 @@ export class AuthService {
   constructor(private http:HttpClient) { }
   login(data:object):Observable<LoginRes>
   {
-    return this.http.post<LoginRes>('http://68.183.221.11:7770/ForensicEvidence/api/Authentication/login',data)
+    return this.http.post<LoginRes>('https://68.183.221.11:7770/ForensicEvidence/api/Authentication/login',data)
   }
 }
